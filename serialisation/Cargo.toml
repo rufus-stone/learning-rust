@@ -1,0 +1,13 @@
+[package]
+name = "serialisation"
+version = "0.1.0"
+authors = ["rufus-stone <60827786+rufus-stone@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.125", features = ["derive"] }
+serde_json = "1.0.64"
+toml = "0.5.8"
+csv = "1.1.6"
