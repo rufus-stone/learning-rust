@@ -1,0 +1,11 @@
+[package]
+name = "myserver"
+version = "0.1.0"
+authors = ["rufus-stone <60827786+rufus-stone@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+simple_logger = "1.11.0"
+log = "0.4.14"
+tokio = { version = "1.5.0", features = ["full"] }
+serialport = "4.0.1"
