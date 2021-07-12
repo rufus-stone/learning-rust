@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]
-pub struct ResolutionError;
+pub struct DimensionsError;
 
-impl std::fmt::Display for ResolutionError {
+impl std::fmt::Display for DimensionsError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
@@ -13,38 +13,38 @@ impl std::fmt::Display for ResolutionError {
 }
 
 #[derive(Debug, Clone)]
-pub struct Resolution {
-    width: u32,
-    height: u32,
+pub struct Dimensions {
+    width: usize,
+    height: usize,
 }
 
-impl FromStr for Resolution {
-    type Err = ResolutionError;
+impl FromStr for Dimensions {
+    type Err = DimensionsError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.find('x') {
-            Some(p) => match (u32::from_str(&s[..p]), u32::from_str(&s[p + 1..])) {
-                (Ok(width), Ok(height)) => Ok(Resolution::new(width, height)),
-                _ => Err(ResolutionError {}),
+            Some(p) => match (usize::from_str(&s[..p]), usize::from_str(&s[p + 1..])) {
+                (Ok(width), Ok(height)) => Ok(Dimensions::new(width, height)),
+                _ => Err(DimensionsError {}),
             },
-            None => Err(ResolutionError {}),
+            None => Err(DimensionsError {}),
         }
     }
 }
 
-impl Resolution {
-    /// Create a new Resolution with the specified width and height
-    pub fn new(width: u32, height: u32) -> Self {
+impl Dimensions {
+    /// Create a new Dimensions with the specified width and height
+    pub fn new(width: usize, height: usize) -> Self {
         Self { width, height }
     }
 
     /// Get an immutable ref to the width
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> usize {
         self.width
     }
 
     /// Get an immutable ref to the height
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> usize {
         self.height
     }
 
