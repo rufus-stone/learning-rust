@@ -1,9 +1,12 @@
+use ggez::Context;
 use rand::{RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
-use crate::players::{human::player::HumanPlayer, Move};
-
-use super::{food::Food, grid::Grid, snek::Snek, types::Vec2};
+use crate::{
+    entities::{food::Food, grid::Grid, snek::Snek},
+    players::{human::player::HumanPlayer, Move},
+    types::Vec2,
+};
 
 pub struct GameState<'a, M: Move> {
     pub snek: Snek,
@@ -56,7 +59,7 @@ impl<'a, M: Move> std::fmt::Display for GameState<'a, M> {
         let mut output = String::with_capacity((self.grid.len() + self.grid.rows()) as usize);
         output.push('\n');
 
-        for chunk in tmp.chunks(self.grid.columns() as usize) {
+        for chunk in tmp.chunks(self.grid.columns() as usize).rev() {
             output = output + &chunk.concat() + "\n";
         }
 
@@ -81,11 +84,11 @@ impl<'a, M: Move> GameState<'a, M> {
     }
 
     /// Move the game forward one frame
-    pub fn step(&mut self, direction: Vec2) {
+    pub fn step(&mut self, orientation: Vec2) {
         // Only step if the game is still in play
         if self.play {
             // First, update the Snek direction
-            self.snek.set_direction(direction);
+            self.snek.set_orientation(orientation);
 
             // Second, advance the Snek and reset the Food if it ate any
             match self.snek.advance(self.grid.bounds(), &self.food.pos()) {
@@ -105,7 +108,10 @@ impl<'a, M: Move> GameState<'a, M> {
 
 #[cfg(test)]
 mod tests {
-    use crate::game::{snek::*, types::Vec2};
+    use crate::{
+        entities::snek::{FACING_DOWN, FACING_LEFT, FACING_RIGHT, FACING_UP},
+        types::Vec2,
+    };
 
     use super::*;
 
@@ -121,53 +127,44 @@ mod tests {
         assert_eq!(state.snek.head(), &Vec2::new(0, 0));
         assert_eq!(state.food.pos(), &Vec2::new(4, 4));
 
-        log::info!("{}", state);
+        println!("{}", state);
     }
 
     #[test]
-    fn snek_movement() {
+    fn sample_game() {
         let mut state = GameState::default();
 
-        log::info!("{}", state);
+        println!("{}", state);
 
         // Play out a game
-        state.step(LEFT);
-        state.step(LEFT);
-        state.step(UP);
-
+        state.step(FACING_LEFT);
+        state.step(FACING_LEFT);
+        state.step(FACING_DOWN);
         assert_eq!(state.snek.len(), 1);
 
-        state.step(UP);
-        state.step(UP);
-        state.step(LEFT);
-        state.step(LEFT);
-
+        state.step(FACING_DOWN);
+        state.step(FACING_DOWN);
+        state.step(FACING_LEFT);
+        state.step(FACING_LEFT);
         assert_eq!(state.snek.len(), 2);
 
-        state.step(UP);
-        state.step(UP);
-        state.step(LEFT);
-        state.step(LEFT);
-        state.step(LEFT);
-        state.step(LEFT);
-        state.step(LEFT);
-
+        state.step(FACING_LEFT);
+        state.step(FACING_LEFT);
+        state.step(FACING_LEFT);
+        state.step(FACING_LEFT);
+        state.step(FACING_DOWN);
+        state.step(FACING_DOWN);
         assert_eq!(state.snek.len(), 3);
 
-        state.step(UP);
-
+        state.step(FACING_LEFT);
+        state.step(FACING_DOWN);
         assert_eq!(state.snek.len(), 4);
 
-        state.step(RIGHT);
+        state.step(FACING_RIGHT);
+        state.step(FACING_UP);
+        state.step(FACING_LEFT);
+        assert_eq!(state.snek.hit_self(), true);
 
-        assert_eq!(state.snek.len(), 5);
-        assert_eq!(state.play, true);
-
-        state.step(DOWN);
-
-        assert_eq!(state.snek.len(), 5);
-        assert_eq!(state.play, false);
-
-        log::info!("{}", state);
+        println!("{}", state);
     }
 }

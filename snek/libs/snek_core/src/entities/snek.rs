@@ -1,27 +1,26 @@
 use std::collections::VecDeque;
 
-use rand::{Rng, RngCore};
-
-use crate::game::types::Vec2;
+use crate::types::{direction, Vec2};
 
 use super::grid::Grid;
 
-pub const UP: Vec2 = Vec2 { x: 0, y: -1 };
-pub const DOWN: Vec2 = Vec2 { x: 0, y: 1 };
-pub const LEFT: Vec2 = Vec2 { x: -1, y: 0 };
-pub const RIGHT: Vec2 = Vec2 { x: 1, y: 0 };
+pub const FACING_UP: Vec2 = Vec2 { x: 0, y: 1 };
+pub const FACING_DOWN: Vec2 = Vec2 { x: 0, y: -1 };
+pub const FACING_LEFT: Vec2 = Vec2 { x: -1, y: 0 };
+pub const FACING_RIGHT: Vec2 = Vec2 { x: 1, y: 0 };
 
 #[derive(Debug)]
 pub struct Snek {
     parts: VecDeque<Vec2>,
-    direction: Vec2,
+    orientation: Vec2,
 }
 
 impl Default for Snek {
+    /// A default Snek starts are grid position 0,0 facing up
     fn default() -> Self {
         Self {
             parts: VecDeque::from(vec![Vec2::new(0, 0)]),
-            direction: Vec2::new(0, 1), // Sneks start moving straight up
+            orientation: FACING_UP, // Sneks start facing straight up
         }
     }
 }
@@ -31,7 +30,7 @@ impl Snek {
     pub fn new(pos: Vec2) -> Self {
         Self {
             parts: VecDeque::from(vec![pos]),
-            direction: Vec2::new(0, 1), // Sneks start moving straight up
+            orientation: FACING_UP, // Sneks start facing straight up
         }
     }
 
@@ -40,7 +39,7 @@ impl Snek {
         self.parts.len() - 1
     }
 
-    /// How long is the Snek (not counting its head)
+    /// Is the Snek empty (i.e. is it just a head with no tail)
     pub fn is_empty(&self) -> bool {
         self.parts.len() == 1
     }
@@ -56,36 +55,28 @@ impl Snek {
     }
 
     /// Get an immutable ref to the current direction of the Snek
-    pub fn direction(&self) -> &Vec2 {
-        &self.direction
+    pub fn orientation(&self) -> &Vec2 {
+        &self.orientation
     }
 
     /// Set the direction of the Snek
-    pub fn set_direction(&mut self, new_direction: Vec2) {
-        self.direction = new_direction;
+    pub fn set_orientation(&mut self, new_orientation: Vec2) {
+        self.orientation = new_orientation;
     }
 
     /// Turn the Snek to the left
     pub fn turn_left(&mut self) {
-        self.direction.x = (self.direction.x as f32).sin() as i32;
-        self.direction.y = (self.direction.x as f32).sin() as i32;
+        self.orientation = self.orientation.rotate(direction::LEFT);
     }
 
     /// Turn the Snek to the right
     pub fn turn_right(&mut self) {
-        self.direction.x = (self.direction.x + 1) % 2;
-        self.direction.y = (self.direction.y + 1) % 2;
+        self.orientation = self.orientation.rotate(direction::RIGHT);
     }
 
-    /// Set a random direction for the Snek
-    pub fn random_direction(&mut self, prng: &mut dyn RngCore) {
-        // First, flip a coin to decide if we're moving horizontally or vertically, and another for forwards and backwards
-        match (prng.gen::<bool>(), prng.gen::<bool>()) {
-            (true, true) => self.set_direction(Vec2::new(-1, 0)),
-            (true, false) => self.set_direction(Vec2::new(0, -1)),
-            (false, true) => self.set_direction(Vec2::new(1, 0)),
-            (false, false) => self.set_direction(Vec2::new(0, 1)),
-        }
+    /// Turn the Snek
+    pub fn turn(&mut self, radians: f64) {
+        self.orientation = self.orientation.rotate(radians);
     }
 
     /// Check if any part of the Snek is touching the specified position
@@ -117,7 +108,7 @@ impl Snek {
     /// Move the Snek
     pub fn advance(&mut self, bounds: &Vec2, food: &Vec2) -> bool {
         // Check where the Snek wants to go, wrapping around if it crosses the bounds of the grid
-        let new_head = Grid::wrap(bounds, &(self.head() + &self.direction));
+        let new_head = Grid::wrap(bounds, &(self.head() + &self.orientation));
 
         // Add the new position
         self.parts.push_back(new_head);
@@ -140,7 +131,7 @@ mod tests {
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;
 
-    use crate::game::food::Food;
+    use crate::entities::food::Food;
 
     use super::*;
 
@@ -149,7 +140,7 @@ mod tests {
         let snek = Snek::default();
 
         assert_eq!(snek.head(), &Vec2::new(0, 0));
-        assert_eq!(snek.direction(), &Vec2::new(0, 1));
+        assert_eq!(snek.orientation(), &Vec2::new(0, 1));
     }
 
     #[test]
@@ -157,7 +148,7 @@ mod tests {
         let snek = Snek::new(Vec2::new(5, 5));
 
         assert_eq!(snek.head(), &Vec2::new(5, 5));
-        assert_eq!(snek.direction(), &Vec2::new(0, 1));
+        assert_eq!(snek.orientation(), &Vec2::new(0, 1));
     }
 
     #[test]
@@ -172,7 +163,7 @@ mod tests {
 
         assert_eq!(snek.head(), &Vec2::new(0, 1));
 
-        snek.set_direction(LEFT);
+        snek.set_orientation(FACING_LEFT);
         snek.advance(&bounds, food.pos());
 
         assert_eq!(snek.head(), &Vec2::new(9, 1));
@@ -183,24 +174,34 @@ mod tests {
 
     #[test]
     fn snek_turning() {
-        let mut prng = ChaCha8Rng::from_seed(Default::default());
-
-        let bounds = Vec2::new(10, 10);
+        // Create a new default Snek
         let mut snek = Snek::default();
-        let food = Food::random(&bounds, &snek, &mut prng);
 
-        assert_eq!(snek.direction(), &Vec2::new(0, 1));
-
-        snek.turn_left();
-        assert_eq!(snek.direction(), &Vec2::new(-1, 0));
+        // Default Sneks start facing up
+        assert_eq!(snek.orientation(), &Vec2::new(0, 1)); // Up
 
         snek.turn_left();
-        assert_eq!(snek.direction(), &Vec2::new(0, -1));
+        assert_eq!(snek.orientation(), &Vec2::new(-1, 0)); // Left
 
         snek.turn_left();
-        assert_eq!(snek.direction(), &Vec2::new(1, 0));
+        assert_eq!(snek.orientation(), &Vec2::new(0, -1)); // Down
 
         snek.turn_left();
-        assert_eq!(snek.direction(), &Vec2::new(0, 1));
+        assert_eq!(snek.orientation(), &Vec2::new(1, 0)); // Right
+
+        snek.turn_left();
+        assert_eq!(snek.orientation(), &Vec2::new(0, 1)); // Up
+
+        snek.turn_right();
+        assert_eq!(snek.orientation(), &Vec2::new(1, 0)); // Right
+
+        snek.turn_right();
+        assert_eq!(snek.orientation(), &Vec2::new(0, -1)); // Down
+
+        snek.turn_right();
+        assert_eq!(snek.orientation(), &Vec2::new(-1, 0)); // Left
+
+        snek.turn_right();
+        assert_eq!(snek.orientation(), &Vec2::new(0, 1)); // Up
     }
 }

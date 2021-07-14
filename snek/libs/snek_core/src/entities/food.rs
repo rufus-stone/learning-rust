@@ -1,6 +1,8 @@
 use rand::{Rng, RngCore};
 
-use super::{snek::Snek, types::Vec2};
+use crate::types::Vec2;
+
+use super::snek::Snek;
 
 #[derive(Debug, PartialEq)]
 pub struct Food(Vec2);
@@ -13,8 +15,8 @@ impl Food {
 
     /// Create a new Food at a random location, but not on top of the Snek
     pub fn random(bounds: &Vec2, snek: &Snek, prng: &mut dyn RngCore) -> Self {
-        let mut x = prng.gen_range(0..bounds.x());
-        let mut y = prng.gen_range(0..bounds.y());
+        let mut x = prng.gen_range(0..bounds.x);
+        let mut y = prng.gen_range(0..bounds.y);
 
         let mut proposed_food = Vec2::new(x, y);
 
@@ -23,8 +25,8 @@ impl Food {
                 "proposed_food {:?} would be inside the Snek! Try again...",
                 &proposed_food
             );
-            x = prng.gen_range(0..bounds.x());
-            y = prng.gen_range(0..bounds.y());
+            x = prng.gen_range(0..bounds.x);
+            y = prng.gen_range(0..bounds.y);
             proposed_food = Vec2::new(x, y);
         }
 
@@ -41,7 +43,7 @@ mod tests {
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;
 
-    use crate::game::food::Food;
+    use crate::entities::food::Food;
 
     use super::*;
 

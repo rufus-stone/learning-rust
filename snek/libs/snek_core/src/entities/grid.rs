@@ -1,4 +1,4 @@
-use super::types::Vec2;
+use crate::types::Vec2;
 
 #[derive(Debug)]
 pub struct Grid(Vec2);
@@ -32,39 +32,39 @@ impl Grid {
 
     /// Get the width of the Grid
     pub fn width(&self) -> usize {
-        self.0.x() as usize
+        self.0.x as usize
     }
 
     /// Get the height of the Grid
     pub fn height(&self) -> usize {
-        self.0.y() as usize
+        self.0.y as usize
     }
 
     /// Get the number of columns in the Grid
     pub fn columns(&self) -> usize {
-        self.0.x() as usize
+        self.0.x as usize
     }
 
     /// Get the number of rows in the Grid
     pub fn rows(&self) -> usize {
-        self.0.y() as usize
+        self.0.y as usize
     }
 
     /// Get a Vec2 describing the centre position in the Grid
     pub fn centre(&self) -> Vec2 {
-        Vec2::new(self.0.x() / 2, self.0.y() / 2)
+        Vec2::new(self.0.x / 2, self.0.y / 2)
     }
 
     /// Wrap the specified position so that it fits within the specified bounds
     pub fn wrap(bounds: &Vec2, pos: &Vec2) -> Vec2 {
-        let x = match pos.x() % bounds.x() < 0 {
-            true => bounds.x() + (pos.x() % bounds.x()),
-            false => pos.x() % bounds.x(),
+        let x = match pos.x % bounds.x < 0 {
+            true => bounds.x + (pos.x % bounds.x),
+            false => pos.x % bounds.x,
         };
 
-        let y = match pos.y() % bounds.y() < 0 {
-            true => bounds.y() + (pos.y() % bounds.y()),
-            false => pos.y() % bounds.y(),
+        let y = match pos.y % bounds.y < 0 {
+            true => bounds.y + (pos.y % bounds.y),
+            false => pos.y % bounds.y,
         };
 
         Vec2::new(x, y)

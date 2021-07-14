@@ -1,5 +1,3 @@
-pub mod food;
-pub mod grid;
-pub mod snek;
+pub mod engine;
+pub mod mode;
 pub mod state;
-pub mod types;

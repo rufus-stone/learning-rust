@@ -1,4 +1,4 @@
-use crate::game::types::Vec2;
+use crate::types::Vec2;
 
 pub mod human;
 
