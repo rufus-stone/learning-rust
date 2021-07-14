@@ -1,17 +1,20 @@
 use rand::{RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
+use crate::players::{human::player::HumanPlayer, Move};
+
 use super::{food::Food, grid::Grid, snek::Snek, types::Vec2};
 
-pub struct GameState<'a> {
+pub struct GameState<'a, M: Move> {
     pub snek: Snek,
     pub food: Food,
     pub grid: Grid,
     pub prng: Box<dyn RngCore + 'a>,
     pub play: bool,
+    pub player: M,
 }
 
-impl<'a> Default for GameState<'a> {
+impl<'a> Default for GameState<'a, HumanPlayer> {
     fn default() -> Self {
         let mut prng = ChaCha8Rng::from_seed(Default::default());
 
@@ -25,11 +28,12 @@ impl<'a> Default for GameState<'a> {
             grid,
             prng: Box::new(prng),
             play: true,
+            player: HumanPlayer::default(),
         }
     }
 }
 
-impl<'a> std::fmt::Display for GameState<'a> {
+impl<'a, M: Move> std::fmt::Display for GameState<'a, M> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Bits
         let tmp: Vec<String> = self
@@ -60,9 +64,9 @@ impl<'a> std::fmt::Display for GameState<'a> {
     }
 }
 
-impl<'a> GameState<'a> {
+impl<'a, M: Move> GameState<'a, M> {
     /// Create a new GameState
-    pub fn new(grid: Grid, prng: &'a mut dyn RngCore) -> Self {
+    pub fn new(grid: Grid, prng: &'a mut dyn RngCore, player: M) -> Self {
         let snek = Snek::default();
         let food = Food::random(grid.bounds(), &snek, prng);
 
@@ -72,6 +76,7 @@ impl<'a> GameState<'a> {
             grid,
             prng: Box::new(prng),
             play: true,
+            player,
         }
     }
 
@@ -93,7 +98,7 @@ impl<'a> GameState<'a> {
                 self.play = false;
             }
         } else {
-            println!("GAME OVER!!");
+            log::info!("GAME OVER!!");
         }
     }
 }
@@ -106,22 +111,24 @@ mod tests {
 
     #[test]
     fn new_gamestate() {
-        let grid = Grid::new(5, 5).unwrap();
         let mut prng = ChaCha8Rng::from_seed(Default::default());
-        let state = GameState::new(grid, &mut prng);
+
+        let grid = Grid::new(5, 5).unwrap();
+        let mut player = HumanPlayer::default();
+        let state = GameState::new(grid, &mut prng, &mut player);
 
         assert_eq!(state.grid.len(), 25);
         assert_eq!(state.snek.head(), &Vec2::new(0, 0));
         assert_eq!(state.food.pos(), &Vec2::new(4, 4));
 
-        println!("{}", state);
+        log::info!("{}", state);
     }
 
     #[test]
     fn snek_movement() {
         let mut state = GameState::default();
 
-        println!("{}", state);
+        log::info!("{}", state);
 
         // Play out a game
         state.step(LEFT);
@@ -161,6 +168,6 @@ mod tests {
         assert_eq!(state.snek.len(), 5);
         assert_eq!(state.play, false);
 
-        println!("{}", state);
+        log::info!("{}", state);
     }
 }

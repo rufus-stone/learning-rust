@@ -40,6 +40,11 @@ impl Snek {
         self.parts.len() - 1
     }
 
+    /// How long is the Snek (not counting its head)
+    pub fn is_empty(&self) -> bool {
+        self.parts.len() == 1
+    }
+
     /// Get an immutable ref to the parts of the Snek
     pub fn parts(&self) -> Vec<Vec2> {
         self.parts.iter().copied().collect::<Vec<Vec2>>()
@@ -119,7 +124,7 @@ impl Snek {
 
         // Did the Snek eat the food?
         if self.head_is_touching(food) {
-            println!("Ate the food!");
+            log::info!("Ate the food!");
             return true;
         } else {
             // If not, pop off the last bit of the tail
@@ -183,12 +188,6 @@ mod tests {
         let bounds = Vec2::new(10, 10);
         let mut snek = Snek::default();
         let food = Food::random(&bounds, &snek, &mut prng);
-
-        let mut x: f64 = 0.0;
-        for i in 1..10 {
-            println!("{}", x.sin());
-            x = i as f64 * 0.5;
-        }
 
         assert_eq!(snek.direction(), &Vec2::new(0, 1));
 

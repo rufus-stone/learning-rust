@@ -19,7 +19,7 @@ impl Food {
         let mut proposed_food = Vec2::new(x, y);
 
         while snek.touches(&proposed_food) {
-            println!(
+            log::info!(
                 "proposed_food {:?} would be inside the Snek! Try again...",
                 &proposed_food
             );

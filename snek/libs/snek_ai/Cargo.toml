@@ -1,0 +1,10 @@
+[package]
+name = "snek_ai"
+version = "0.2.0"
+authors = ["rufus-stone <60827786+rufus-stone@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+snek_core = { path = "../snek_core" }
+genetic-algorithm = { path = "../genetic-algorithm" }
+neural-network = { path = "../neural-network" }
