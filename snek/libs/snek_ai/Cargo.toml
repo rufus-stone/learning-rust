@@ -8,3 +8,7 @@ edition = "2018"
 snek_core = { path = "../snek_core" }
 genetic-algorithm = { path = "../genetic-algorithm" }
 neural-network = { path = "../neural-network" }
+rand = "0.8.4"
+rand_chacha = "0.3.1"
+log = "0.4.14"
+ggez = "0.6.0-rc2"

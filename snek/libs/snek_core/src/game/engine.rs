@@ -1,11 +1,16 @@
 use ggez::event::EventHandler;
 use ggez::{Context, GameError, GameResult};
+use rand::RngCore;
 
 use crate::players::Move;
 
 use super::state::GameState;
 
-impl<'a, M: Move> EventHandler<GameError> for GameState<'a, M> {
+impl<R, M> EventHandler<GameError> for GameState<R, M>
+where
+    R: RngCore,
+    M: Move,
+{
     /// Called every frame
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         // Where is the Snek currently facing?
@@ -20,7 +25,7 @@ impl<'a, M: Move> EventHandler<GameError> for GameState<'a, M> {
 
         // Finally, check if the the game has ended, and quit if so
         if !self.play {
-            log::info!("{}", self);
+            log::warn!("{}", self);
             ggez::event::quit(ctx);
         }
 

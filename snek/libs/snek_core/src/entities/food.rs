@@ -21,7 +21,7 @@ impl Food {
         let mut proposed_food = Vec2::new(x, y);
 
         while snek.touches(&proposed_food) {
-            log::info!(
+            log::warn!(
                 "proposed_food {:?} would be inside the Snek! Try again...",
                 &proposed_food
             );
@@ -29,6 +29,8 @@ impl Food {
             y = prng.gen_range(0..bounds.y);
             proposed_food = Vec2::new(x, y);
         }
+
+        log::warn!("New random Food: {:?}", &proposed_food);
 
         Self(proposed_food)
     }

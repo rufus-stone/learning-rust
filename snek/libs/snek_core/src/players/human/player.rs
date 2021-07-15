@@ -33,7 +33,7 @@ impl HumanPlayer {
             },
         };
 
-        log::info!("New human player: {:?}", &player);
+        log::warn!("New HumanPlayer: {:?}", &player);
 
         player
     }
@@ -41,14 +41,18 @@ impl HumanPlayer {
 
 impl Default for HumanPlayer {
     fn default() -> Self {
-        HumanPlayer {
+        let player = HumanPlayer {
             controls: Controls {
                 left: keyboard::KeyCode::Left,
                 right: keyboard::KeyCode::Right,
                 up: keyboard::KeyCode::Up,
                 down: keyboard::KeyCode::Down,
             },
-        }
+        };
+
+        log::warn!("New default HumanPlayer: {:?}", &player);
+
+        player
     }
 }
 

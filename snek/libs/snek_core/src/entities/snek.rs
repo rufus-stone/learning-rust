@@ -18,6 +18,7 @@ pub struct Snek {
 impl Default for Snek {
     /// A default Snek starts are grid position 0,0 facing up
     fn default() -> Self {
+        log::warn!("New default Snek");
         Self {
             parts: VecDeque::from(vec![Vec2::new(0, 0)]),
             orientation: FACING_UP, // Sneks start facing straight up
@@ -28,6 +29,7 @@ impl Default for Snek {
 impl Snek {
     /// Create a new Snek at the specified position
     pub fn new(pos: Vec2) -> Self {
+        log::warn!("New custom Snek");
         Self {
             parts: VecDeque::from(vec![pos]),
             orientation: FACING_UP, // Sneks start facing straight up
@@ -115,7 +117,7 @@ impl Snek {
 
         // Did the Snek eat the food?
         if self.head_is_touching(food) {
-            log::info!("Ate the food!");
+            log::warn!("Ate the food!");
             return true;
         } else {
             // If not, pop off the last bit of the tail

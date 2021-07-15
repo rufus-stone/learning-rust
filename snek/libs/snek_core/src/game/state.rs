@@ -1,4 +1,3 @@
-use ggez::Context;
 use rand::{RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
@@ -8,16 +7,20 @@ use crate::{
     types::Vec2,
 };
 
-pub struct GameState<'a, M: Move> {
+pub struct GameState<R, M>
+where
+    R: RngCore,
+    M: Move,
+{
     pub snek: Snek,
     pub food: Food,
     pub grid: Grid,
-    pub prng: Box<dyn RngCore + 'a>,
+    pub prng: R,
     pub play: bool,
     pub player: M,
 }
 
-impl<'a> Default for GameState<'a, HumanPlayer> {
+impl Default for GameState<ChaCha8Rng, HumanPlayer> {
     fn default() -> Self {
         let mut prng = ChaCha8Rng::from_seed(Default::default());
 
@@ -25,18 +28,24 @@ impl<'a> Default for GameState<'a, HumanPlayer> {
         let snek = Snek::default();
         let food = Food::random(grid.bounds(), &snek, &mut prng);
 
+        let player = HumanPlayer::default();
+
         Self {
             snek,
             food,
             grid,
-            prng: Box::new(prng),
+            prng,
             play: true,
-            player: HumanPlayer::default(),
+            player,
         }
     }
 }
 
-impl<'a, M: Move> std::fmt::Display for GameState<'a, M> {
+impl<R, M> std::fmt::Display for GameState<R, M>
+where
+    R: RngCore,
+    M: Move,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Bits
         let tmp: Vec<String> = self
@@ -67,17 +76,21 @@ impl<'a, M: Move> std::fmt::Display for GameState<'a, M> {
     }
 }
 
-impl<'a, M: Move> GameState<'a, M> {
+impl<R, M> GameState<R, M>
+where
+    R: RngCore,
+    M: Move,
+{
     /// Create a new GameState
-    pub fn new(grid: Grid, prng: &'a mut dyn RngCore, player: M) -> Self {
+    pub fn new(grid: Grid, mut prng: R, player: M) -> Self {
         let snek = Snek::default();
-        let food = Food::random(grid.bounds(), &snek, prng);
+        let food = Food::random(grid.bounds(), &snek, &mut prng);
 
         Self {
             snek,
             food,
             grid,
-            prng: Box::new(prng),
+            prng,
             play: true,
             player,
         }
@@ -101,7 +114,7 @@ impl<'a, M: Move> GameState<'a, M> {
                 self.play = false;
             }
         } else {
-            log::info!("GAME OVER!!");
+            log::warn!("GAME OVER!!");
         }
     }
 }
@@ -132,7 +145,11 @@ mod tests {
 
     #[test]
     fn sample_game() {
-        let mut state = GameState::default();
+        let mut prng = ChaCha8Rng::from_seed(Default::default());
+        let grid = Grid::new(5, 5).unwrap();
+        let mut player = HumanPlayer::default();
+
+        let mut state = GameState::new(grid, &mut prng, &mut player);
 
         println!("{}", state);
 

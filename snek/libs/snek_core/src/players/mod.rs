@@ -19,3 +19,10 @@ impl<'a, M: Move + ?Sized> Move for &'a mut M {
         (**self).make_move(_ctx)
     }
 }
+
+/// Implement `Move` for boxed trait objects
+impl Move for Box<dyn Move> {
+    fn make_move(&self, _ctx: &mut ggez::Context) -> Option<Vec2> {
+        self.as_ref().make_move(_ctx)
+    }
+}

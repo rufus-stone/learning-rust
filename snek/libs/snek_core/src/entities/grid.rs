@@ -10,6 +10,7 @@ impl Grid {
         if width == 0 || height == 0 {
             None
         } else {
+            log::warn!("New Grid of width: {} / height: {}", width, height);
             Some(Self(Vec2::new(width as i32, height as i32)))
         }
     }
@@ -96,6 +97,7 @@ impl Grid {
 
 impl Default for Grid {
     fn default() -> Self {
+        log::warn!("New default Grid");
         Self(Vec2::new(10, 10))
     }
 }
@@ -184,7 +186,7 @@ mod tests {
         let grid = Grid::new(5, 5).unwrap();
 
         for pos in &grid {
-            log::info!("{:?}", pos);
+            log::warn!("{:?}", pos);
         }
     }
 }
