@@ -4,8 +4,8 @@ use crate::types::{direction, Vec2};
 
 use super::grid::Grid;
 
-pub const FACING_UP: Vec2 = Vec2 { x: 0, y: 1 };
-pub const FACING_DOWN: Vec2 = Vec2 { x: 0, y: -1 };
+pub const FACING_UP: Vec2 = Vec2 { x: 0, y: -1 };
+pub const FACING_DOWN: Vec2 = Vec2 { x: 0, y: 1 };
 pub const FACING_LEFT: Vec2 = Vec2 { x: -1, y: 0 };
 pub const FACING_RIGHT: Vec2 = Vec2 { x: 1, y: 0 };
 
@@ -93,6 +93,11 @@ impl Snek {
 
     /// Check if the Snek head has hit the Snek body
     pub fn hit_self(&self) -> bool {
+        // If the Snek is only a head then it can't have hit itself!
+        if self.is_empty() {
+            return false;
+        }
+
         // Find the first position in the VecDeque where the body_part is in the same place as the head
         // This will always find a match, as the head is part of the body, so eventually the head will be compared with the head...
         // But, as the head is always the last element in the VecDeque, this is fine

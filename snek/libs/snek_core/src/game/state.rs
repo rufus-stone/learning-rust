@@ -97,11 +97,12 @@ where
     }
 
     /// Move the game forward one frame
-    pub fn step(&mut self, orientation: Vec2) {
+    pub fn step(&mut self) {
+        //, orientation: Vec2) {
         // Only step if the game is still in play
         if self.play {
             // First, update the Snek direction
-            self.snek.set_orientation(orientation);
+            //self.snek.set_orientation(orientation);
 
             // Second, advance the Snek and reset the Food if it ate any
             match self.snek.advance(self.grid.bounds(), &self.food.pos()) {
@@ -154,32 +155,41 @@ mod tests {
         println!("{}", state);
 
         // Play out a game
-        state.step(FACING_LEFT);
-        state.step(FACING_LEFT);
-        state.step(FACING_DOWN);
+        state.snek.set_orientation(FACING_LEFT);
+        state.step();
+        state.step();
+        state.snek.set_orientation(FACING_DOWN);
+        state.step();
         assert_eq!(state.snek.len(), 1);
 
-        state.step(FACING_DOWN);
-        state.step(FACING_DOWN);
-        state.step(FACING_LEFT);
-        state.step(FACING_LEFT);
+        state.step();
+        state.step();
+        state.snek.set_orientation(FACING_LEFT);
+        state.step();
+        state.step();
         assert_eq!(state.snek.len(), 2);
 
-        state.step(FACING_LEFT);
-        state.step(FACING_LEFT);
-        state.step(FACING_LEFT);
-        state.step(FACING_LEFT);
-        state.step(FACING_DOWN);
-        state.step(FACING_DOWN);
+        state.step();
+        state.step();
+        state.step();
+        state.step();
+        state.snek.set_orientation(FACING_DOWN);
+        state.step();
+        state.step();
         assert_eq!(state.snek.len(), 3);
 
-        state.step(FACING_LEFT);
-        state.step(FACING_DOWN);
+        state.snek.set_orientation(FACING_LEFT);
+        state.step();
+        state.snek.set_orientation(FACING_DOWN);
+        state.step();
         assert_eq!(state.snek.len(), 4);
 
-        state.step(FACING_RIGHT);
-        state.step(FACING_UP);
-        state.step(FACING_LEFT);
+        state.snek.set_orientation(FACING_RIGHT);
+        state.step();
+        state.snek.set_orientation(FACING_UP);
+        state.step();
+        state.snek.set_orientation(FACING_LEFT);
+        state.step();
         assert_eq!(state.snek.hit_self(), true);
 
         println!("{}", state);

@@ -1,12 +1,10 @@
 use ggez::{conf, GameResult};
 use simple_logger::SimpleLogger;
 
-mod settings;
-
-use settings::*;
 use snek_ai::AiPlayer;
 use snek_core::players::Move;
 use snek_core::players::{human::player::HumanPlayer, Player};
+use snek_core::settings::{self, HUMAN};
 use snek_core::{
     entities::grid::Grid,
     game::{self, state::GameState},
