@@ -1,0 +1,16 @@
+[package]
+name = "example"
+version = "0.1.0"
+authors = ["rufus-stone <60827786+rufus-stone@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+core_lib = { path = "../libs/core_lib" }
+secondary_lib = { path = "../libs/secondary_lib" }
+tertiary_lib = { path = "../libs/tertiary_lib" }
+
+ggez = "0.6.0-rc2"
+rand = "0.8.4"
+rand_chacha = "0.3.1"
