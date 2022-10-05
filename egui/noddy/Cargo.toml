@@ -3,6 +3,13 @@ name = "noddy"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+eframe = "0.19.0"
+# egui_node_graph = "0.3.0"
+egui_node_graph = { git = "https://github.com/setzer22/egui_node_graph" }
+anyhow = "1.0.65"
+serde = { version = "1.0.145", optional = true }
+
+[features]
+default = []
+persistence = ["serde", "egui_node_graph/persistence", "eframe/persistence"]
